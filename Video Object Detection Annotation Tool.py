@@ -202,7 +202,7 @@ def analyze_object(objectnumber, SOD, videoname, specieslist, OCx1y1, OCx2y2):
         global encodings
         encodings = ['utf-8', 'latin_1']
         framesave = int(input('\nSave every how many frames? (0-20. 5 recommended. 1 is every frame): '))
-        encoding = int(input(f'\nWhich character encoding would you like to use (some filenames may not be supported by utf-8)\n {encodings}\n (0 is utf-8): '))
+        encoding = int(input(f'\nWhich character encoding would you like to use (some filenames may not be supported by utf-8)\n {encodings}\n (0 is utf-8, etc.): '))
         capture = cv2.VideoCapture(VIDEO_DIR + '{}.mp4'.format(videoname))
         for framenum in tqdm.trange(0, maxnumframes):
             ret, frame = capture.read()
@@ -233,7 +233,7 @@ def analyze_object(objectnumber, SOD, videoname, specieslist, OCx1y1, OCx2y2):
             np.savetxt(SAVE_DIR + 'ObjectDetectorTrainingFile2.csv', outputfilearray[1:], delimiter=',', fmt='%s')
             df2 = pd.read_csv(SAVE_DIR + 'ObjectDetectorTrainingFile2.csv', encoding = encodings[encoding])
             os.remove(SAVE_DIR + 'ObjectDetectorTrainingFile2.csv')
-            df2.to_csv(SAVE_DIR + 'ObjectDetectorTrainingFile.csv', mode='a', index=False)
+            df2.to_csv(SAVE_DIR + 'ObjectDetectorTrainingFile.csv', mode='a', index=False, encoding = encodings[encoding])
 
         if not os.path.exists(SAVE_DIR + 'VideosExamined.txt'):
             with open(SAVE_DIR + 'VideosExamined.txt', 'w') as f:
