@@ -51,17 +51,39 @@ def choose_video(VIDEO_DIR, SAVE_DIR):
 
     print('Videos in Directory: {}\n'.format(VIDEO_DIR))
 
-    for species in os.listdir(VIDEO_DIR):
-        print(os.listdir(VIDEO_DIR).index(species), species)
+    if not os.path.exists(SAVE_DIR + 'last.txt'):
+        last = input("Choose index of last labelled video: ")
+        with open(SAVE_DIR + 'last.txt', 'w') as f:
+            f.write(last)
+        f.close()
+
+    if os.path.exists(SAVE_DIR + 'VideosExamined.txt'):
+        with open(SAVE_DIR + "last.txt", 'r') as f:
+            prev = f.read().splitlines()[0]
+        with open(SAVE_DIR + 'VideosExamined.txt', 'r') as f:
+            videolist = f.read().splitlines()
+        idx = int(prev)
+        for species in os.listdir(VIDEO_DIR)[idx-5:idx+5]:
+            if os.listdir(VIDEO_DIR).index(species) != idx:
+                print(os.listdir(VIDEO_DIR).index(species), species)
+            else:
+                print("\n------previous video------\n\n",
+                os.listdir(VIDEO_DIR).index(species), species,
+                "\n\n--------------------------\n")
+
+    #for species in os.listdir(VIDEO_DIR):
+    #    print(os.listdir(VIDEO_DIR).index(species), species)
 
     # User input for video
     while True:
         ans = input('\nSelect video by name or number: ')
         if ans in os.listdir(VIDEO_DIR):
             videoname = ans[:-4]
+            last = os.listdir(VIDEO_DIR).index(ans)
             break
         elif ans.isdigit() == True and 0 <= int(ans) < len(os.listdir(VIDEO_DIR)):
             videoname = os.listdir(VIDEO_DIR)[int(ans)][:-4]
+            last = ans
             break
         else:
             print('Enter valid videoname')
@@ -96,7 +118,7 @@ def choose_video(VIDEO_DIR, SAVE_DIR):
             print('\nCurrent species:\n')
             for species in specieslist: print(species)
             specieslist = write_to_file(specieslist)
-    return videoname, specieslist
+    return videoname, specieslist, last
 
 
 def record_coordinates(videoname):
@@ -115,7 +137,8 @@ def record_coordinates(videoname):
         cv2.setMouseCallback('original', mouse_xy)
         cv2.imshow('original', frame)
         k = cv2.waitKey(30) & 0xff
-        if k == 27: break
+        if k == 27:
+            break
         if framenum == 0:
             print('Place mouse on video. Start in 3 seconds')
             time.sleep(3)
@@ -247,6 +270,11 @@ def analyze_object(objectnumber, SOD, videoname, specieslist, OCx1y1, OCx2y2):
                 for item in sorted(videolist):
                     f.write("{}\n".format(item))
 
+        if os.path.exists(SAVE_DIR + 'last.txt'):
+            with open(SAVE_DIR + 'last.txt', 'w') as f:
+                f.write(last)
+
+
     if input('Saved!\n\nWould you like to annotate another video? (y/n): ') == 'y':
         annotate_video(VIDEO_DIR, SAVE_DIR)
     else: quit()
@@ -263,10 +291,10 @@ def annotate_video(VIDEO_DIR, SAVE_DIR):
     objectnumber = 0
 
 
-    videoname, specieslist = choose_video(VIDEO_DIR, SAVE_DIR)
+    videoname, specieslist, last = choose_video(VIDEO_DIR, SAVE_DIR)
     OCx1y1 = record_coordinates(videoname)
     OCx2y2 = record_coordinates(videoname)
-    analyze_object(objectnumber, SOD, videoname, specieslist, OCx1y1, OCx2y2)
+    analyze_object(objectnumber, SOD, videoname, specieslist, OCx1y1, OCx2y2, last)
 
 
 
@@ -284,5 +312,3 @@ if __name__ == '__main__':
     #------------------------------------------------#
 
     annotate_video(VIDEO_DIR, SAVE_DIR)
-
-
