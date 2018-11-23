@@ -51,6 +51,7 @@ def choose_video(VIDEO_DIR, SAVE_DIR):
 
     print('Videos in Directory: {}\n'.format(VIDEO_DIR))
 
+    global last
     if not os.path.exists(SAVE_DIR + 'last.txt'):
         last = input("Choose index of last labelled video: ")
         with open(SAVE_DIR + 'last.txt', 'w') as f:
@@ -270,10 +271,9 @@ def analyze_object(objectnumber, SOD, videoname, specieslist, OCx1y1, OCx2y2):
                 for item in sorted(videolist):
                     f.write("{}\n".format(item))
 
-        if os.path.exists(SAVE_DIR + 'last.txt'):
-            with open(SAVE_DIR + 'last.txt', 'w') as f:
-                f.write(last)
-
+        print ("saving last", last)
+        with open(SAVE_DIR + 'last.txt', 'w') as f:
+            f.write(last)
 
     if input('Saved!\n\nWould you like to annotate another video? (y/n): ') == 'y':
         annotate_video(VIDEO_DIR, SAVE_DIR)
@@ -294,7 +294,8 @@ def annotate_video(VIDEO_DIR, SAVE_DIR):
     videoname, specieslist, last = choose_video(VIDEO_DIR, SAVE_DIR)
     OCx1y1 = record_coordinates(videoname)
     OCx2y2 = record_coordinates(videoname)
-    analyze_object(objectnumber, SOD, videoname, specieslist, OCx1y1, OCx2y2, last)
+    analyze_object(objectnumber, SOD, videoname, specieslist, OCx1y1, OCx2y2)
+
 
 
 
