@@ -125,7 +125,8 @@ def choose_video(VIDEO_DIR, SAVE_DIR):
 def record_coordinates(videoname):
     global ix, iy, mbdown, frame, maxnumframes, videowidth, videoheight
     ix, iy, mbdown = -1, -1, False
-
+    fps = input("framerate? default 3. [1,2,3]")
+    levels = {"1":120, "2":60, "3":30}
     capture = cv2.VideoCapture(VIDEO_DIR + '{}.mp4'.format(videoname))
     maxnumframes = int(capture.get(cv2.CAP_PROP_FRAME_COUNT)) - 2
     videowidth, videoheight = int(capture.get(3)), int(capture.get(4))
@@ -137,7 +138,7 @@ def record_coordinates(videoname):
         cv2.moveWindow('original', 40, 30)
         cv2.setMouseCallback('original', mouse_xy)
         cv2.imshow('original', frame)
-        k = cv2.waitKey(30) & 0xff
+        k = cv2.waitKey(levels[str(fps)]) & 0xff
         if k == 27:
             break
         if framenum == 0:
