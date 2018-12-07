@@ -229,7 +229,8 @@ def analyze_object(objectnumber, SOD, videoname, specieslist, OCx1y1, OCx2y2):
         global encodings
         encodings = {0:'utf-8', 1:'latin_1', "": 'utf-8'}
         framesave = int(input('\nSave every how many frames? (0-20. 5 recommended. 1 is every frame): '))
-        encoding = int(input(f'\nWhich character encoding would you like to use (some filenames may not be supported by utf-8)\n {encodings}\n (0 is utf-8, etc.): '))
+        #encoding = int(input(f'\nWhich character encoding would you like to use (some filenames may not be supported by utf-8)\n {encodings}\n (0 is utf-8, etc.): '))
+        encoding = 0
         capture = cv2.VideoCapture(VIDEO_DIR + '{}.mp4'.format(videoname))
         for framenum in tqdm.trange(0, maxnumframes):
             ret, frame = capture.read()
