@@ -125,8 +125,8 @@ def choose_video(VIDEO_DIR, SAVE_DIR):
 def record_coordinates(videoname):
     global ix, iy, mbdown, frame, maxnumframes, videowidth, videoheight
     ix, iy, mbdown = -1, -1, False
-    fps = input("framerate? default 3. [1,2,3]")
-    levels = {"1":120, "2":60, "3":30}
+    fps = choice = input("framerate? default 4. [1,2,3,4,5] ")
+    levels = {"1":500, "2":120, "3":60, "4":30, "5":10, "":30}
     capture = cv2.VideoCapture(VIDEO_DIR + '{}.mp4'.format(videoname))
     maxnumframes = int(capture.get(cv2.CAP_PROP_FRAME_COUNT)) - 2
     videowidth, videoheight = int(capture.get(3)), int(capture.get(4))
@@ -139,8 +139,11 @@ def record_coordinates(videoname):
         cv2.setMouseCallback('original', mouse_xy)
         cv2.imshow('original', frame)
         k = cv2.waitKey(levels[str(fps)]) & 0xff
+        print (k, fps)
         if k == 27:
             break
+        elif k > 48 and k < 54:
+            fps = str(k-48)
         if framenum == 0:
             print('Place mouse on video. Start in 3 seconds')
             time.sleep(3)
@@ -225,7 +228,7 @@ def analyze_object(objectnumber, SOD, videoname, specieslist, OCx1y1, OCx2y2):
 
     if input('\nSave? (y/n): ') == 'y':
         global encodings
-        encodings = ['utf-8', 'latin_1']
+        encodings = {0:'utf-8', 1:'latin_1', "": 'utf-8'}
         framesave = int(input('\nSave every how many frames? (0-20. 5 recommended. 1 is every frame): '))
         encoding = int(input(f'\nWhich character encoding would you like to use (some filenames may not be supported by utf-8)\n {encodings}\n (0 is utf-8, etc.): '))
         capture = cv2.VideoCapture(VIDEO_DIR + '{}.mp4'.format(videoname))
