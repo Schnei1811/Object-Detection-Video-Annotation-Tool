@@ -125,8 +125,8 @@ def choose_video(VIDEO_DIR, SAVE_DIR):
 def record_coordinates(videoname):
     global ix, iy, mbdown, frame, maxnumframes, videowidth, videoheight
     ix, iy, mbdown = -1, -1, False
-    fps = choice = input("framerate? default 4. [1,2,3,4,5] ")
-    levels = {"1":500, "2":120, "3":60, "4":30, "5":10, "":30}
+    fps = choice = input("framerate? default 3. [1,2,3,4,5] ")
+    levels = {"1":500, "2":120, "3":60, "4":30, "5":10, "":60}
     capture = cv2.VideoCapture(VIDEO_DIR + '{}.mp4'.format(videoname))
     maxnumframes = int(capture.get(cv2.CAP_PROP_FRAME_COUNT)) - 2
     videowidth, videoheight = int(capture.get(3)), int(capture.get(4))
