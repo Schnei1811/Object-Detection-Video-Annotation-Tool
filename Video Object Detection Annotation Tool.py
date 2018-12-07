@@ -139,7 +139,6 @@ def record_coordinates(videoname):
         cv2.setMouseCallback('original', mouse_xy)
         cv2.imshow('original', frame)
         k = cv2.waitKey(levels[str(fps)]) & 0xff
-        print (k, fps)
         if k == 27:
             break
         elif k > 48 and k < 54:
