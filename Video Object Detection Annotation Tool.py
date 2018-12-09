@@ -51,17 +51,40 @@ def choose_video(VIDEO_DIR, SAVE_DIR):
 
     print('Videos in Directory: {}\n'.format(VIDEO_DIR))
 
-    for species in os.listdir(VIDEO_DIR):
-        print(os.listdir(VIDEO_DIR).index(species), species)
+    global last
+    if not os.path.exists(SAVE_DIR + 'last.txt'):
+        last = input("Choose index of last labelled video: ")
+        with open(SAVE_DIR + 'last.txt', 'w') as f:
+            f.write(last)
+        f.close()
+
+    if os.path.exists(SAVE_DIR + 'VideosExamined.txt'):
+        with open(SAVE_DIR + "last.txt", 'r') as f:
+            prev = f.read().splitlines()[0]
+        with open(SAVE_DIR + 'VideosExamined.txt', 'r') as f:
+            videolist = f.read().splitlines()
+        idx = int(prev)
+        for species in os.listdir(VIDEO_DIR)[idx-5:idx+5]:
+            if os.listdir(VIDEO_DIR).index(species) != idx:
+                print(os.listdir(VIDEO_DIR).index(species), species)
+            else:
+                print("\n------previous video------\n\n",
+                os.listdir(VIDEO_DIR).index(species), species,
+                "\n\n--------------------------\n")
+
+    #for species in os.listdir(VIDEO_DIR):
+    #    print(os.listdir(VIDEO_DIR).index(species), species)
 
     # User input for video
     while True:
         ans = input('\nSelect video by name or number: ')
         if ans in os.listdir(VIDEO_DIR):
             videoname = ans[:-4]
+            last = os.listdir(VIDEO_DIR).index(ans)
             break
         elif ans.isdigit() == True and 0 <= int(ans) < len(os.listdir(VIDEO_DIR)):
             videoname = os.listdir(VIDEO_DIR)[int(ans)][:-4]
+            last = ans
             break
         else:
             print('Enter valid videoname')
@@ -96,13 +119,14 @@ def choose_video(VIDEO_DIR, SAVE_DIR):
             print('\nCurrent species:\n')
             for species in specieslist: print(species)
             specieslist = write_to_file(specieslist)
-    return videoname, specieslist
+    return videoname, specieslist, last
 
 
 def record_coordinates(videoname):
     global ix, iy, mbdown, frame, maxnumframes, videowidth, videoheight
     ix, iy, mbdown = -1, -1, False
-
+    fps = choice = input("framerate? default 3. [1,2,3,4,5] ")
+    levels = {"1":500, "2":120, "3":60, "4":30, "5":10, "":60}
     capture = cv2.VideoCapture(VIDEO_DIR + '{}.mp4'.format(videoname))
     maxnumframes = int(capture.get(cv2.CAP_PROP_FRAME_COUNT)) - 2
     videowidth, videoheight = int(capture.get(3)), int(capture.get(4))
@@ -114,8 +138,11 @@ def record_coordinates(videoname):
         cv2.moveWindow('original', 40, 30)
         cv2.setMouseCallback('original', mouse_xy)
         cv2.imshow('original', frame)
-        k = cv2.waitKey(30) & 0xff
-        if k == 27: break
+        k = cv2.waitKey(levels[str(fps)]) & 0xff
+        if k == 27:
+            break
+        elif k > 48 and k < 54:
+            fps = str(k-48)
         if framenum == 0:
             print('Place mouse on video. Start in 3 seconds')
             time.sleep(3)
@@ -200,9 +227,10 @@ def analyze_object(objectnumber, SOD, videoname, specieslist, OCx1y1, OCx2y2):
 
     if input('\nSave? (y/n): ') == 'y':
         global encodings
-        encodings = ['utf-8', 'latin_1']
+        encodings = {0:'utf-8', 1:'latin_1', "": 'utf-8'}
         framesave = int(input('\nSave every how many frames? (0-20. 5 recommended. 1 is every frame): '))
-        encoding = int(input(f'\nWhich character encoding would you like to use (some filenames may not be supported by utf-8)\n {encodings}\n (0 is utf-8, etc.): '))
+        #encoding = int(input(f'\nWhich character encoding would you like to use (some filenames may not be supported by utf-8)\n {encodings}\n (0 is utf-8, etc.): '))
+        encoding = 0
         capture = cv2.VideoCapture(VIDEO_DIR + '{}.mp4'.format(videoname))
         for framenum in tqdm.trange(0, maxnumframes):
             ret, frame = capture.read()
@@ -247,6 +275,10 @@ def analyze_object(objectnumber, SOD, videoname, specieslist, OCx1y1, OCx2y2):
                 for item in sorted(videolist):
                     f.write("{}\n".format(item))
 
+        print ("saving last", last)
+        with open(SAVE_DIR + 'last.txt', 'w') as f:
+            f.write(last)
+
     if input('Saved!\n\nWould you like to annotate another video? (y/n): ') == 'y':
         annotate_video(VIDEO_DIR, SAVE_DIR)
     else: quit()
@@ -263,10 +295,11 @@ def annotate_video(VIDEO_DIR, SAVE_DIR):
     objectnumber = 0
 
 
-    videoname, specieslist = choose_video(VIDEO_DIR, SAVE_DIR)
+    videoname, specieslist, last = choose_video(VIDEO_DIR, SAVE_DIR)
     OCx1y1 = record_coordinates(videoname)
     OCx2y2 = record_coordinates(videoname)
     analyze_object(objectnumber, SOD, videoname, specieslist, OCx1y1, OCx2y2)
+
 
 
 
@@ -284,5 +317,3 @@ if __name__ == '__main__':
     #------------------------------------------------#
 
     annotate_video(VIDEO_DIR, SAVE_DIR)
-
-
